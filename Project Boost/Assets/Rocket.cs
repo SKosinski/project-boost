@@ -6,23 +6,33 @@ using UnityEngine;
 public class Rocket : MonoBehaviour
 {
 
-    public Rigidbody rb;
-    public AudioSource audioSource;
+    Rigidbody rb;
+    AudioSource audioSource;
+    LevelLoader levelLoader;
+
     [SerializeField] float thrustSpeed = 2;
     [SerializeField] float rotationSpeed = 2;
+
+    enum State {  Alive, Dying, Transcending }
+    State state = State.Alive;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
+        levelLoader = FindObjectOfType<LevelLoader>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        Thrust();
-        Rotate();
+        if(state!=State.Dying)
+        {
+            Thrust();
+            Rotate();
+        }
     }
 
     private void Thrust()
@@ -70,13 +80,29 @@ public class Rocket : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Friendly")
+        if (state != State.Alive)
         {
-            print("Safe");
+            return;
         }
-        else
+        
+        switch (collision.gameObject.tag)
         {
-            print("Dead");
+            case "Friendly":
+                break;
+            case "End":
+                state = State.Transcending;
+                levelLoader.LoadNextLevel();
+                break;
+            default:
+                Die();
+                break;
         }
+    }
+
+    private void Die()
+    {
+        state = State.Dying;
+        levelLoader.ReloadLevel();
+        rb.freezeRotation = false;
     }
 }
