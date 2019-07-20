@@ -101,21 +101,21 @@ public class Rocket : MonoBehaviour
 
     private void RespondToRotateInput()
     {
-        rb.freezeRotation = true;
-
         float rotationThisFrame = rotationSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.D))
         {
+            rb.freezeRotation = true;
             transform.Rotate(new Vector3(0, 0, -rotationThisFrame));
+            rb.freezeRotation = false;
         }
 
         else if (Input.GetKey(KeyCode.A))
         {
+            rb.freezeRotation = true;
             transform.Rotate(new Vector3(0, 0, rotationThisFrame));
+            rb.freezeRotation = false;
         }
-
-        rb.freezeRotation = false;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -141,7 +141,7 @@ public class Rocket : MonoBehaviour
     private void Success()
     {
         state = State.Transcending;
-        audioSource.Stop();
+        //audioSource.Stop();
         audioSource.PlayOneShot(success);
         particles[2].Play();
         levelLoader.LoadNextLevel();
@@ -150,6 +150,10 @@ public class Rocket : MonoBehaviour
     private void Die()
     {
         state = State.Dying;
+        if (particles[0].isPlaying)
+        {
+            particles[0].Stop();
+        }
         audioSource.Stop();
         audioSource.PlayOneShot(death);
         particles[1].Play();
