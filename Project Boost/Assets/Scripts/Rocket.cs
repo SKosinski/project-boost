@@ -19,7 +19,9 @@ public class Rocket : MonoBehaviour
 
     [SerializeField] ParticleSystem[] particles;
 
-    enum State {  Alive, Dying, Transcending }
+    [SerializeField] bool isInvincible = false;
+
+    enum State {  Alive, Dying, Transcending, Invincible }
     State state = State.Alive;
 
     // Start is called before the first frame update
@@ -34,10 +36,37 @@ public class Rocket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(state!=State.Dying)
+        if (state != State.Dying)
         {
             RespondToThrustInput();
             RespondToRotateInput();
+        }
+
+        if (Debug.isDebugBuild)
+        {
+            RespondToDebugKeys();
+        }
+    }
+
+    private void RespondToDebugKeys()
+    {
+        if (Input.GetKey(KeyCode.L))
+        {
+            levelLoader.ApplyLoadNextLevel();
+        }
+
+        if (Input.GetKey(KeyCode.C))
+        {
+            if (state != State.Invincible)
+            {
+                state = State.Invincible;
+                isInvincible = true;
+            }
+            else if (state == State.Invincible)
+            {
+                state = State.Alive;
+                isInvincible = false;
+            }
         }
     }
 
